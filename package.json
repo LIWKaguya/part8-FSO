@@ -1,0 +1,16 @@
+{
+  "name": "part8-fso",
+  "version": "1.0.0",
+  "description": "part8-FSO",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^3.5.0",
+    "apollo-server-core": "^3.5.0",
+    "graphql": "^15.7.2"
+  }
+}
