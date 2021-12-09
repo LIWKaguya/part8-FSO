@@ -12,7 +12,7 @@ const Books = (props) => {
         genres
       }
     }
-  `
+  `  
   const result = useQuery(ALL_BOOKS)
   if (!props.show) {
     return null
