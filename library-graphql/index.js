@@ -143,7 +143,8 @@ const resolvers = {
         id: uuid()
       }
       books = books.concat(book)
-      authors = authors.concat(author)
+      const check = authors.find(a => a.name === author.name)
+      if(!check) authors.concat(author)
       return book 
     },
     editAuthor: (root, args) => {
