@@ -144,7 +144,7 @@ const resolvers = {
       }
       books = books.concat(book)
       const check = authors.find(a => a.name === author.name)
-      if(!check) authors.concat(author)
+      if(!check) authors = authors.concat(author)
       return book 
     },
     editAuthor: (root, args) => {
