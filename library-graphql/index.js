@@ -56,40 +56,40 @@ const resolvers = {
   Query: {
     authorCount: () => Author.collection.countDocuments(),
     bookCount: () => Book.collection.countDocuments(),
-    allBooks: (root, args) => {
-      return Book.find({}).populate('author', {name: 1, born: 1})
+    allBooks: async (root, args) => {
+      return await Book.find({}).populate('author')
     },
-    allAuthors: () => {
-      return Author.find({}).clone()
+    allAuthors: async () => {
+      return await Author.find({})
     }
   },
   Authors: {
     booksCount: async (root) => {
-      const books = await Book.find({}).clone()
+      const books = await Book.find({}).populate('author')
       const authors = books.map(book => book.author)
-      return authors.filter(author => author === root.name).length
+      return authors.filter(author => author.name === root.name).length
     }
   },
   Mutation: {
     addBook: async (root, args) => {
       let author = await Author.findOne({name: args.author})
       if(!author) {
-        const newAuthor = new Author({name: args.author})
+        const newAuthor = new Author({...args.author})
         await newAuthor.save()
+        author = newAuthor
       }
-      author = await Author.findOne({name: args.author})
-      const book = new Book({
+      let book = new Book({
         title: args.title,
-        author: author.id,
         published: args.published,
+        author: author,
         genres: args.genres
       })
-      return book.save()
+      return await book.save()
     },
     editAuthor: async (root, args) => {
       const author = await Author.findOne({ name: args.name})
       author.phone = args.phone
-      return author.save()
+      return await author.save()
     }
   }
 }
