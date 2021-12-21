@@ -93,7 +93,9 @@ const resolvers = {
     addBook: async (root, args) => {
       let author = await Author.findOne({name: args.author})
       if(!author) {
-        const newAuthor = new Author({...args.author})
+        const newAuthor = new Author({
+          name: args.author
+        })
         await newAuthor.save()
         author = newAuthor
       }
