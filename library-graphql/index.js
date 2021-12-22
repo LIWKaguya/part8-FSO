@@ -1,4 +1,4 @@
-const { ApolloServer, gql, UserInputError } = require('apollo-server')
+const { ApolloServer, gql, UserInputError, AuthenticationError } = require('apollo-server')
 require('dotenv').config()
 const mongoose = require('mongoose')
 const Author = require('./models/Author')
@@ -125,7 +125,6 @@ const resolvers = {
       const curUser = context.currentUser
       if(!curUser) throw new AuthenticationError("not authenticated")
       try {
-        console.log(args.author)
         let author = await Author.findOne({name: args.author.name})
         if(!author) {
           const newAuthor = new Author({
