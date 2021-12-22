@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require('apollo-server')
+const { ApolloServer, gql, UserInputError } = require('apollo-server')
 require('dotenv').config()
 const mongoose = require('mongoose')
 const Author = require('./models/Author')
@@ -24,6 +24,11 @@ const typeDefs = gql`
     genres: [String!]!
   }
 
+  input AuthorInput {
+    name: String!,
+    born: Int
+  }
+
   type Authors {
     name: String!,
     id: String!,
@@ -41,7 +46,7 @@ const typeDefs = gql`
   type Mutation {
     addBook(
       title:String!
-      author:String!
+      author:AuthorInput!
       published:Int!
       genres: [String!]!
     ): Books
@@ -91,21 +96,30 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
-      let author = await Author.findOne({name: args.author})
-      if(!author) {
-        const newAuthor = new Author({
-          name: args.author
+      try {
+        console.log(args.author)
+        let author = await Author.findOne({name: args.author.name})
+        if(!author) {
+          const newAuthor = new Author({
+            ...args.author
+          })
+          if(args.author.name.length < 3) throw new UserInputError("The author name is too short")
+          await newAuthor.save()
+          author = newAuthor
+        }
+        let book = new Book({
+          title: args.title,
+          published: args.published,
+          author: author,
+          genres: args.genres
         })
-        await newAuthor.save()
-        author = newAuthor
+        if(args.title.length < 3) {
+          throw new UserInputError("The title is too short")
+        }
+        return await book.save()
+      } catch (error) {
+        throw new UserInputError("The title is already existed")
       }
-      let book = new Book({
-        title: args.title,
-        published: args.published,
-        author: author,
-        genres: args.genres
-      })
-      return await book.save()
     },
     editAuthor: async (root, args) => {
       const author = await Author.findOne({ name: args.name})
