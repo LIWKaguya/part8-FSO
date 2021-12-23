@@ -88,10 +88,10 @@ const resolvers = {
       if(args.author) {
         const needAuthor = await Author.find({name: args.author})
         if(needAuthor) {
-          if(args.genres) {
+          if(args.genre) {
             return await Book.find({
               author: needAuthor,
-              genres: {$in : [args.genres]}
+              genres: {$in : [args.genre]}
             }).populate('author')
           }
           return await Book.find({
@@ -99,9 +99,9 @@ const resolvers = {
           }).populate('author')
         }
       }
-      if(args.genres) {
+      if(args.genre) {
         return await Book.find({
-          genres: {$in: [args.genres]}
+          genres: {$in: [args.genre]}
         }).populate('author')
       }
       return await Book.find({}).populate('author')
@@ -152,7 +152,8 @@ const resolvers = {
       const curUser = context.currentUser
       if(!curUser) throw new AuthenticationError("not authenticated")
       const author = await Author.findOne({ name: args.name})
-      author.phone = args.phone
+      console.log(author)
+      author.born = args.setBornTo
       return await author.save()
     },
     createUser: async (root, args) => {

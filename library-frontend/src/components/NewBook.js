@@ -22,7 +22,10 @@ const NewBook = (props) => {
 
     let numPublished = Number(published)
     
-    createBook({variables : {title, author, numPublished, genres}})
+    createBook({variables : {title, author: {
+      name: author,
+      born: null
+    }, numPublished, genres}})
 
     setTitle('')
     setPublished('')

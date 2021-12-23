@@ -22,7 +22,6 @@ const Authors = (props) => {
     let numYear = Number(year)
     let nameVal = name.value
     editYear({ variables: {nameVal, numYear}})
-    setName('')
     setYear('')
   }
 
