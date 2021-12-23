@@ -6,6 +6,9 @@ const Book = require('./models/Book')
 const User = require('./models/User')
 const jwt = require('jsonwebtoken')
 
+const { PubSub } = require("graphql-subscriptions");
+const pubsub = new PubSub();
+
 const MONGODB_URI = process.env.MONGODB_URI
 const JWT_SECRET = process.env.JWT_SECRET
 const PASSWORD = process.env.PASSWORD
@@ -78,6 +81,10 @@ const typeDefs = gql`
       password: String!
     ): Token
   }
+
+  type Subscription {
+    bookAdded: Books!
+  }
 `
 
 const resolvers = {
@@ -143,7 +150,10 @@ const resolvers = {
         if(args.title.length < 3) {
           throw new UserInputError("The title is too short")
         }
-        return await book.save()
+
+        pubsub.publish("BOOK_ADDED", { bookAdded: book})
+
+        return book
       } catch (error) {
         throw new UserInputError("The title is already existed")
       }
@@ -182,7 +192,12 @@ const resolvers = {
     
         return { value: jwt.sign(userForToken, JWT_SECRET) }
       }
-    }
+    },
+    Subscription: {
+      bookAdded: {
+        subscribe: () => pubsub.asyncIterator(["BOOK_ADDED"]),
+      },
+    },
 }
 
 const server = new ApolloServer({
@@ -200,6 +215,7 @@ const server = new ApolloServer({
   }
 })
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionUrl }) => {
   console.log(`Server ready at ${url}`)
+  console.log(`Subcriptions ready at ${subscriptionUrl}`)
 })
