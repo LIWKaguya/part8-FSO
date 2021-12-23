@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useQuery } from '@apollo/client'
 import { ALL_BOOKS } from '../queries'
+import Select from 'react-select'
 
 const Books = (props) => {
-    
+  const [genre, setGenre] = useState({value: 'all', label:'all'})
   const result = useQuery(ALL_BOOKS)
   if (!props.show) {
     return null
@@ -13,11 +14,14 @@ const Books = (props) => {
       <>Wait a bit....</>
     )
   }
-  const books = result.data.allBooks
+  const genres = [{value: 'all', label: 'all'}] 
+  let books = result.data.allBooks
+  books.forEach(book => book.genres.forEach(genre => genres.push({value: genre, label: genre})))
+  if(genre.value !== 'all') books = books.filter(book => book.genres.includes(genre.value))
   return (
     <div>
       <h2>books</h2>
-
+      <h3>{genre.value === 'all' ? <>All choices</> : <>In genre {genre.value}</>}</h3>
       <table>
         <tbody>
           <tr>
@@ -38,6 +42,7 @@ const Books = (props) => {
           )}
         </tbody>
       </table>
+      List of genres: <Select options={genres} onChange={setGenre}/>
     </div>
   )
 }
